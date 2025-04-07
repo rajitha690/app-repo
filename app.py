@@ -1,6 +1,7 @@
-def greet(name):
-    return f"Hello, {name}!"
+from flask import Flask
 
-if __name__ == "__main__":
-    user = "Swapna"
-    print(greet(user))
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Hello, Flask from Jenkins pipeline!"
