@@ -4,4 +4,4 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Hello, Flask from Jenkins pipeline!"
+    return "Hello from Flask app running through Jenkins!"
