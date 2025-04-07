@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'MySonarQube' // Name as per your Jenkins config
+        SONARQUBE_ENV = 'MySonarQube' // Must match the configured SonarQube name
     }
 
     stages {
@@ -11,7 +11,8 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv("${env.SONARQUBE_ENV}") {
-                        sh 'sonar-scanner' // Or use mvn sonar:sonar if it's a Maven project
+                        def scannerHome = tool 'SonarScanner' // Must match the configured SonarScanner name
+                        sh "${scannerHome}/bin/sonar-scanner"
                     }
                 }
             }
@@ -44,7 +45,7 @@ pipeline {
             }
             steps {
                 echo "Running Build..."
-                sh './build.sh' // replace with your build command
+                sh './build.sh'
             }
         }
 
@@ -54,7 +55,7 @@ pipeline {
             }
             steps {
                 echo "Deploying Application..."
-                sh './deploy.sh' // replace with your deploy command
+                sh './deploy.sh'
             }
         }
     }
