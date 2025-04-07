@@ -1,2 +1,3 @@
-# Only add real dependencies here
-# For this test file, we don't need any, so it's okay to leave it empty
+flask
+requests
+
