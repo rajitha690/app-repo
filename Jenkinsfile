@@ -16,7 +16,7 @@ pipeline {
                     python3 -m venv venv
 
                     echo "Activating venv..."
-                    source venv/bin/activate
+                    . venv/bin/activate
 
                     echo "Upgrading pip..."
                     pip install --upgrade pip
@@ -32,7 +32,7 @@ pipeline {
                 echo 'Running Deploy Step...'
                 sh '''
                     echo "Activating venv..."
-                    source venv/bin/activate
+                    . venv/bin/activate
 
                     echo "Starting the app..."
                     python app.py
