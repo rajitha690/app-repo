@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'MySonarQube' // Replace with your actual SonarQube config name in Jenkins
+        SONARQUBE_ENV = 'MySonarQube'
     }
 
     options {
@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
-                        sh 'sonar-scanner'
+                        sh '/opt/sonar-scanner/bin/sonar-scanner'
                     }
                 }
             }
@@ -22,7 +22,7 @@ pipeline {
 
         stage('Wait for Quality Gate') {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     script {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
@@ -40,10 +40,8 @@ pipeline {
                 expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
             }
             steps {
-                ansiColor('xterm') {
-                    echo '📦 Building the application...'
-                    sh 'echo Simulating build step'
-                }
+                echo '📦 Building the application...'
+                sh 'echo Simulating build step'
             }
         }
 
@@ -52,10 +50,8 @@ pipeline {
                 expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
             }
             steps {
-                ansiColor('xterm') {
-                    echo '🚀 Deploying the application...'
-                    sh 'echo Simulating deploy step'
-                }
+                echo '🚀 Deploying the application...'
+                sh 'echo Simulating deploy step'
             }
         }
     }
