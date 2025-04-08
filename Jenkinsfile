@@ -22,7 +22,7 @@ pipeline {
 
         stage('Wait for Quality Gate') {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     script {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
@@ -42,7 +42,7 @@ pipeline {
             steps {
                 ansiColor('xterm') {
                     echo '📦 Building the application...'
-                    sh 'echo Simulating build step' // Replace with your actual build command
+                    sh 'echo Simulating build step'
                 }
             }
         }
@@ -52,4 +52,20 @@ pipeline {
                 expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
             }
             steps {
-                ansiColor('x
+                ansiColor('xterm') {
+                    echo '🚀 Deploying the application...'
+                    sh 'echo Simulating deploy step'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '🎉 Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed.'
+        }
+    }
+}
