@@ -2,21 +2,23 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'MySonarQubeServer' // Update with your SonarQube installation name
+        // Optional: define credentials/paths here
+        SONARQUBE_ENV = 'MySonarQube' // replace with your actual SonarQube config name in Jenkins
+    }
+
+    options {
+        timestamps()
+        ansiColor('xterm')
     }
 
     stages {
-
-        stage('Checkout') {
+        stage('Quality Gate') {
             steps {
-                git 'https://github.com/dimpleswapna/app-repo.git'
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv("${SONARQUBE}") {
-                    sh 'sonar-scanner'
+                script {
+                    // Start Sonar analysis
+                    withSonarQubeEnv("${SONARQUBE_ENV}") {
+                        sh 'sonar-scanner' // or your custom Sonar command
+                    }
                 }
             }
         }
@@ -24,36 +26,45 @@ pipeline {
         stage('Wait for Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                    script {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "❌ Quality Gate failed: ${qg.status}"
+                        } else {
+                            echo "✅ Quality Gate passed"
+                        }
+                    }
                 }
             }
         }
 
         stage('Build') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
             steps {
-                sh '''
-                    chmod +x build.sh
-                    ./build.sh
-                '''
+                echo '📦 Building the application...'
+                sh 'echo Simulating build step' // replace with your actual build command
             }
         }
 
         stage('Deploy') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
             steps {
-                sh '''
-                    chmod +x deploy.sh
-                    ./deploy.sh
-                '''
+                echo '🚀 Deploying the application...'
+                sh 'echo Simulating deploy step' // replace with your actual deployment script
             }
         }
     }
 
     post {
-        always {
-            echo 'Pipeline execution completed.'
+        success {
+            echo '🎉 Pipeline completed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Please check the logs!'
+            echo '❌ Pipeline failed.'
         }
     }
 }
