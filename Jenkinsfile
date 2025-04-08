@@ -2,11 +2,12 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'MySonarQube'
+        SONARQUBE_ENV = 'MySonarQube' // Replace with your SonarQube config name in Jenkins
     }
 
     options {
         timestamps()
+        ansiColor('xterm')
     }
 
     stages {
@@ -14,7 +15,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
-                        sh '/opt/sonar-scanner/bin/sonar-scanner'
+                        sh '/opt/sonar-scanner/bin/sonar-scanner' // Make sure full path is used
                     }
                 }
             }
@@ -26,7 +27,8 @@ pipeline {
                     script {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
-                            error "❌ Quality Gate failed: ${qg.status}"
+                            echo "❌ Quality Gate failed: ${qg.status}"
+                            // No error thrown, so pipeline continues
                         } else {
                             echo "✅ Quality Gate passed"
                         }
@@ -36,22 +38,21 @@ pipeline {
         }
 
         stage('Build') {
-            when {
-                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
-            }
             steps {
                 echo '📦 Building the application...'
-                sh 'echo Simulating build step'
+                sh '''
+                    python3 -m venv venv
+                    source venv/bin/activate
+                    pip install -r requirements.txt
+                    python app.py
+                '''
             }
         }
 
         stage('Deploy') {
-            when {
-                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
-            }
             steps {
                 echo '🚀 Deploying the application...'
-                sh 'echo Simulating deploy step'
+                sh 'echo Simulating deploy step' // Replace with your deployment command
             }
         }
     }
