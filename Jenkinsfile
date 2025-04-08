@@ -2,17 +2,21 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'MySonarQube' // This must match your SonarQube server name in Jenkins config
+        SONARQUBE_ENV = 'MySonarQube' // This must match the name in Jenkins > Global Tool Configuration
     }
 
     stages {
-
         stage('SonarQube Analysis') {
             steps {
                 script {
                     withSonarQubeEnv("${env.SONARQUBE_ENV}") {
-                        def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                        sh "${scannerHome}/bin/sonar-scanner"
+                        withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                            def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                            sh """
+                                ${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.login=$SONAR_TOKEN
+                            """
+                        }
                     }
                 }
             }
@@ -45,7 +49,7 @@ pipeline {
             }
             steps {
                 echo "Running Build..."
-                sh './build.sh' // Make sure this file exists and is executable
+                sh 'chmod +x build.sh && ./build.sh'
             }
         }
 
@@ -55,7 +59,7 @@ pipeline {
             }
             steps {
                 echo "Deploying Application..."
-                sh './deploy.sh' // Same here
+                sh 'chmod +x deploy.sh && ./deploy.sh'
             }
         }
     }
