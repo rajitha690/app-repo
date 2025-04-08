@@ -7,10 +7,10 @@ cd $WORKSPACE/app-repo
 # Activate virtual environment
 source venv/bin/activate
 
-# Kill any process running on port 5000 (optional safety step)
+# Kill any app already running on port 5000
 fuser -k 5000/tcp || true
 
-# Start the app in the background with nohup
+# Start Flask app in the background
 nohup python app.py > app.log 2>&1 &
 
 echo "Deployment complete."
