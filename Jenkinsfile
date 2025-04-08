@@ -2,18 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'MySonarQube' // Replace with your SonarQube config name
-    }
-
-    options {
-        timestamps()
+        SONARQUBE_ENV = 'MySonarQube'  // Replace with your SonarQube config name
     }
 
     stages {
-        stage('Quality Gate') {
+        stage('SonarQube Analysis') {
             steps {
                 script {
-                    wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+                    wrap([$class: 'AnsiColorBuildWrapper', colorMapName: 'xterm']) {
                         withSonarQubeEnv("${SONARQUBE_ENV}") {
                             sh '/opt/sonar-scanner/bin/sonar-scanner'
                         }
@@ -29,7 +25,7 @@ pipeline {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
                             echo "❌ Quality Gate failed: ${qg.status}"
-                            // Continue instead of failing
+                            // Optional: Send alert here
                         } else {
                             echo "✅ Quality Gate passed"
                         }
@@ -40,27 +36,22 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo '📦 Building the application...'
-                sh '''
-                    python3 -m venv venv
-                    source venv/bin/activate
-                    pip install -r requirements.txt
-                    python app.py
-                '''
+                echo "🛠️ Building the application..."
+                // Add build commands here (e.g., Docker build, Maven build, etc.)
             }
         }
 
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying the application...'
-                sh 'echo Simulating deploy step'
+                echo "🚀 Deploying the application..."
+                // Add deployment steps here
             }
         }
     }
 
     post {
-        success {
-            echo '🎉 Pipeline completed successfully!'
+        always {
+            echo '📦 Pipeline completed.'
         }
         failure {
             echo '❌ Pipeline failed.'
