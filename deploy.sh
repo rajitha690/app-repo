@@ -2,14 +2,15 @@
 
 echo "Starting deployment..."
 
-# Assuming your app runs on Flask
-# Just confirming it's running on port 5000
-if lsof -i:5000 > /dev/null; then
-    echo "App is already running on port 5000."
-else
-    echo "App is not running. Starting it..."
-    source venv/bin/activate
-    nohup python app.py > app.log 2>&1 &
-fi
+cd $WORKSPACE/app-repo
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Kill any process running on port 5000 (optional safety step)
+fuser -k 5000/tcp || true
+
+# Start the app in the background with nohup
+nohup python app.py > app.log 2>&1 &
 
 echo "Deployment complete."
