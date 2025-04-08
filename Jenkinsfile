@@ -2,22 +2,19 @@ pipeline {
     agent any
 
     environment {
-        // Optional: define credentials/paths here
-        SONARQUBE_ENV = 'MySonarQube' // replace with your actual SonarQube config name in Jenkins
+        SONARQUBE_ENV = 'MySonarQube' // Replace with your actual SonarQube config name in Jenkins
     }
 
     options {
         timestamps()
-        ansiColor('xterm')
     }
 
     stages {
         stage('Quality Gate') {
             steps {
                 script {
-                    // Start Sonar analysis
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
-                        sh 'sonar-scanner' // or your custom Sonar command
+                        sh 'sonar-scanner'
                     }
                 }
             }
@@ -43,8 +40,10 @@ pipeline {
                 expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
             }
             steps {
-                echo '📦 Building the application...'
-                sh 'echo Simulating build step' // replace with your actual build command
+                ansiColor('xterm') {
+                    echo '📦 Building the application...'
+                    sh 'echo Simulating build step' // Replace with your actual build command
+                }
             }
         }
 
@@ -53,18 +52,4 @@ pipeline {
                 expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
             }
             steps {
-                echo '🚀 Deploying the application...'
-                sh 'echo Simulating deploy step' // replace with your actual deployment script
-            }
-        }
-    }
-
-    post {
-        success {
-            echo '🎉 Pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed.'
-        }
-    }
-}
+                ansiColor('x
