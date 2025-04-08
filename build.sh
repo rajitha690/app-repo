@@ -13,6 +13,3 @@ pip install --upgrade pip
 
 echo "Installing dependencies..."
 pip install -r requirements.txt
-
-echo "Running the app..."
-nohup python app.py > app.log 2>&1 &
