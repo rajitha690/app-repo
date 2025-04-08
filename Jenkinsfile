@@ -2,51 +2,58 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = "${WORKSPACE}/venv"
+        SONARQUBE = 'MySonarQubeServer' // Update with your SonarQube installation name
     }
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/dimpleswapna/app-repo.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv("${SONARQUBE}") {
+                    sh 'sonar-scanner'
+                }
+            }
+        }
+
+        stage('Wait for Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Running Build Step...'
                 sh '''
-                    set -e
-
-                    echo "Creating virtual environment..."
-                    python3 -m venv venv
-
-                    echo "Activating venv..."
-                    . venv/bin/activate
-
-                    echo "Upgrading pip..."
-                    pip install --upgrade pip
-
-                    echo "Installing dependencies..."
-                    pip install -r requirements.txt
+                    chmod +x build.sh
+                    ./build.sh
                 '''
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Running Deploy Step...'
                 sh '''
-                    echo "Activating venv..."
-                    . venv/bin/activate
-
-                    echo "Starting the app..."
-                    python app.py
+                    chmod +x deploy.sh
+                    ./deploy.sh
                 '''
             }
         }
     }
 
     post {
-        failure {
-            echo 'Pipeline failed. Please check the logs!'
-        }
         always {
             echo 'Pipeline execution completed.'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs!'
         }
     }
 }
