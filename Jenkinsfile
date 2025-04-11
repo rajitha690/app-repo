@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'MySonarQube'  // Name of the SonarQube server in Jenkins config
+        SONARQUBE_ENV = 'MySonarQube'
     }
 
     stages {
@@ -25,6 +25,7 @@ pipeline {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
                             echo "❌ Quality Gate failed: ${qg.status}"
+                            currentBuild.result = 'FAILURE'
                             error "Aborting pipeline due to Quality Gate failure"
                         } else {
                             echo "✅ Quality Gate passed: ${qg.status}"
@@ -35,16 +36,24 @@ pipeline {
         }
 
         stage('Build') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
             steps {
                 echo "🛠️ Building the application..."
-                // Example: sh 'docker build -t my-app .'
+                // Example build command
+                // sh 'docker build -t my-app .'
             }
         }
 
         stage('Deploy') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
             steps {
                 echo "🚀 Deploying the application..."
-                // Example: sh './deploy.sh'
+                // Example deployment step
+                // sh './deploy.sh'
             }
         }
     }
