@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'MySonarQube'
+        SONARQUBE_ENV = 'sonar'
     }
 
     stages {
